@@ -1,20 +1,13 @@
 package main
 
 import (
-	"context"
-	"flag"
 	"fmt"
-	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/mux"
+	"gogorillarest/pkg"
 	"log"
 	"net/http"
-	"time"
 )
 
-var (
-	pool *redis.Pool
-	redisServer = *flag.String("local-redis", ":6379", "")
-)
 
 func main() {
 	r := mux.NewRouter()
@@ -26,16 +19,10 @@ func main() {
 	})
 	r.HandleFunc("/configuration/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		flag.Parse()
-		pool := newPool(redisServer)
-		conn, err := pool.GetContext(context.Background())
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		_, err = conn.Do("SET", vars["id"], "hello")
-
-	})
+		redisConn := pkg.NewRedisConnection("local-redis",":6379")
+		repository := pkg.NewRedisRepository(redisConn.GetRedisConnection())
+		repository.Set(vars["id"], "hello")
+	}).Methods(http.MethodPost)
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
@@ -46,13 +33,6 @@ func HelloWorldHandler() func(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func newPool(addr string) *redis.Pool {
-	return &redis.Pool{
-		MaxIdle:     3,
-		IdleTimeout: 240 * time.Second,
-		// Dial or DialContext must be set. When both are set, DialContext takes precedence over Dial.
-		Dial: func() (redis.Conn, error) { return redis.Dial("tcp", addr) },
-	}
-}
+
 
 
