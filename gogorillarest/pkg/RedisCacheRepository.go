@@ -6,20 +6,24 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-type RedisRepository struct{
+type ConfigMapRedisRepository struct{
 	conn redis.Conn
 }
 
-func NewRedisRepository(conn redis.Conn) *RedisRepository {
-	return &RedisRepository{conn: conn}
+func NewRedisRepository(conn redis.Conn) *ConfigMapRedisRepository {
+	return &ConfigMapRedisRepository{conn: conn}
 }
 
-func (r *RedisRepository) Set(key, value string) {
+func (r *ConfigMapRedisRepository) Set(key string, value ConfigMap) {
 	fmt.Println(key)
-	r.conn.Do("SET", key, value)
+	bytes, err := json.Marshal(value)
+	if err != nil {
+		fmt.Println(err)
+	}
+	r.conn.Do("SET", key, bytes)
 }
 
-func (r *RedisRepository) GetById(key string) (result string) {
+func (r *ConfigMapRedisRepository) GetById(key string) (result ConfigMap) {
 	keys,_ := redis.Bytes(r.conn.Do("GET", key))
 	json.Unmarshal(keys, &result)
 	return result
