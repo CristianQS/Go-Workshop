@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"gogorillarest/pkg"
+    "gopkg.in/yaml.v3"
 	"log"
 	"net/http"
 )
