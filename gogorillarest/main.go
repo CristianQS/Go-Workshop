@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"gogorillarest/pkg"
+	"gogorillarest/pkg/configmap"
 	"gogorillarest/pkg/serializers/yaml"
 	"io/ioutil"
 	"log"
@@ -23,10 +24,8 @@ func main() {
 		if err != nil {
 			log.Printf("yamlFile.Get err   #%v ", err)
 		}
-		serializer := yaml.YamlV2Serializer{}
-		configmap := &pkg.ConfigMap{}
-		serializer.Deserialize(bytes, configmap)
-		repository.Set(vars["id"], *configmap)
+		service := configmap.NewService(yaml.YamlV2Serializer{},*repository)
+		service.GetConfigMap(vars["id"],bytes)
 		w.WriteHeader(http.StatusCreated)
 	}).Methods(http.MethodPost)
 	r.HandleFunc("/configuration/{id}", func(w http.ResponseWriter, r *http.Request) {
@@ -37,5 +36,6 @@ func main() {
 	}).Methods(http.MethodGet)
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
+
 
 
