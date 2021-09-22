@@ -6,7 +6,7 @@ import (
 )
 
 type Service interface {
-	GetConfigMap(id string, fileData []byte) (configmap *pkg.ConfigMap)
+	AddConfigMap(id string, fileData []byte) (configmap *pkg.ConfigMap)
 }
 
 type service struct {
@@ -18,7 +18,7 @@ func NewService(yamlSerializer yaml.YamlV2Serializer, repository pkg.ConfigMapRe
 	return &service{yamlSerializer: yamlSerializer, repository: repository}
 }
 
-func (s *service) GetConfigMap(id string, fileData []byte) (configmap *pkg.ConfigMap) {
+func (s *service) AddConfigMap(id string, fileData []byte) (configmap *pkg.ConfigMap) {
 	s.yamlSerializer.Deserialize(fileData, configmap)
 	s.repository.Set(id, *configmap)
 	return configmap

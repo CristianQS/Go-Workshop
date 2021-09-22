@@ -18,12 +18,12 @@ var (
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/configuration/{id}", GetConfigMapById()).Methods(http.MethodPost)
-	r.HandleFunc("/configuration/{id}", AddConfigMap()).Methods(http.MethodGet)
+	r.HandleFunc("/configuration/{id}", AddConfigMap()).Methods(http.MethodPost)
+	r.HandleFunc("/configuration/{id}", GetConfigMapById()).Methods(http.MethodGet)
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
-func GetConfigMapById() func(w http.ResponseWriter, r *http.Request) {
+func AddConfigMap() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		bytes, err := ioutil.ReadFile("testdata/configmap.yaml")
@@ -31,12 +31,12 @@ func GetConfigMapById() func(w http.ResponseWriter, r *http.Request) {
 			log.Printf("yamlFile.Get err   #%v ", err)
 		}
 		service := configmap.NewService(yaml.YamlV2Serializer{}, *repository)
-		service.GetConfigMap(vars["id"], bytes)
+		service.AddConfigMap(vars["id"], bytes)
 		w.WriteHeader(http.StatusCreated)
 	}
 }
 
-func AddConfigMap() func(w http.ResponseWriter, r *http.Request) {
+func GetConfigMapById() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		configMap := repository.GetById(vars["id"])
