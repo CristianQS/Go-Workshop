@@ -39,7 +39,8 @@ func AddConfigMap() func(w http.ResponseWriter, r *http.Request) {
 func GetConfigMapById() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		configMap := repository.GetById(vars["id"])
+		service := configmap.NewService(yaml.YamlV2Serializer{}, *repository)
+		configMap := service.GetConfigMapById(vars["id"])
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(configMap)
 	}

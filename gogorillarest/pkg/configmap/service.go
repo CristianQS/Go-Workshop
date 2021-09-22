@@ -7,6 +7,7 @@ import (
 
 type Service interface {
 	AddConfigMap(id string, fileData []byte) (configmap *pkg.ConfigMap)
+	GetConfigMapById(id string) (configmap pkg.ConfigMap)
 }
 
 type service struct {
@@ -22,4 +23,8 @@ func (s *service) AddConfigMap(id string, fileData []byte) (configmap *pkg.Confi
 	s.yamlSerializer.Deserialize(fileData, configmap)
 	s.repository.Set(id, *configmap)
 	return configmap
+}
+
+func (s *service) GetConfigMapById(id string) (configmap pkg.ConfigMap) {
+	return  s.repository.GetById(id)
 }
