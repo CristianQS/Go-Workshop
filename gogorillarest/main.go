@@ -30,7 +30,7 @@ func AddConfigMap() func(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Printf("yamlFile.Get err   #%v ", err)
 		}
-		service := configmap.NewService(yaml.YamlV2Serializer{}, *repository)
+		service := configmap.NewService(&yaml.V2Serializer{}, *repository)
 		service.AddConfigMap(vars["id"], bytes)
 		w.WriteHeader(http.StatusCreated)
 	}
@@ -39,7 +39,7 @@ func AddConfigMap() func(w http.ResponseWriter, r *http.Request) {
 func GetConfigMapById() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		service := configmap.NewService(yaml.YamlV2Serializer{}, *repository)
+		service := configmap.NewService(&yaml.V2Serializer{}, *repository)
 		configMap := service.GetConfigMapById(vars["id"])
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(configMap)

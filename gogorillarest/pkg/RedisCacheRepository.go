@@ -15,7 +15,6 @@ func NewRedisRepository(conn redis.Conn) *ConfigMapRedisRepository {
 }
 
 func (r *ConfigMapRedisRepository) Set(key string, value ConfigMap) {
-	fmt.Println(key)
 	bytes, err := json.Marshal(value)
 	if err != nil {
 		fmt.Println(err)
