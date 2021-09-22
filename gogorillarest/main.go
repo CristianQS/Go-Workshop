@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"gogorillarest/pkg"
+	"gogorillarest/pkg/serializers/yaml"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -13,14 +15,20 @@ var (
 	repository = pkg.NewRedisRepository(redisConn.GetRedisConnection())
 )
 
+
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/configuration/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		var configMap pkg.ConfigMap
-		configMap.GetYaml()
-		fmt.Println(configMap)
-		repository.Set(vars["id"], configMap)
+		bytes, err := ioutil.ReadFile("testdata/configmap.yaml")
+		if err != nil {
+			log.Printf("yamlFile.Get err   #%v ", err)
+		}
+		serializer := yaml.YamlV2Serializer{}
+		configmap := &pkg.ConfigMap{}
+		serializer.Deserialize(bytes, configmap)
+		fmt.Println(configmap)
+		repository.Set(vars["id"], *configmap)
 	}).Methods(http.MethodPost)
 	r.HandleFunc("/configuration/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
