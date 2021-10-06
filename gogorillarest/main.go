@@ -1,9 +1,12 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/gorilla/mux"
 	"gogorillarest/pkg"
+	"gogorillarest/pkg/configmap"
+	"gogorillarest/pkg/serializers/yaml"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -15,31 +18,33 @@ var (
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/helloworld", HelloWorldHandler())
-	r.HandleFunc("/helloworld/{name}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		fmt.Fprintf(w, "Hello %s, you've requested: %s\n", vars["name"], r.URL.Path)
-		fmt.Printf("It was requested: %s\n\n", r.URL.Path)
-	})
-	r.HandleFunc("/configuration/{id}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		repository.Set(vars["id"], "hello")
-	}).Methods(http.MethodPost)
-	r.HandleFunc("/configuration/{id}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		key := repository.GetById(vars["id"])
-		fmt.Println(key)
-	}).Methods(http.MethodGet)
+	r.HandleFunc("/configuration/{id}", AddConfigMap()).Methods(http.MethodPost)
+	r.HandleFunc("/configuration/{id}", GetConfigMapById()).Methods(http.MethodGet)
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
-func HelloWorldHandler() func(w http.ResponseWriter, r *http.Request) {
+func AddConfigMap() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, you've requested: %s\n", r.URL.Path)
-		fmt.Printf("It was requested: %s\n\n", r.URL.Path)
+		vars := mux.Vars(r)
+		bytes, err := ioutil.ReadFile("testdata/configmap.yaml")
+		if err != nil {
+			log.Printf("yamlFile.Get err   #%v ", err)
+		}
+		service := configmap.NewService(&yaml.V2Serializer{}, *repository)
+		service.AddConfigMap(vars["id"], bytes)
+		w.WriteHeader(http.StatusCreated)
 	}
 }
 
+func GetConfigMapById() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		service := configmap.NewService(&yaml.V2Serializer{}, *repository)
+		configMap := service.GetConfigMapById(vars["id"])
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(configMap)
+	}
+}
 
 
 
