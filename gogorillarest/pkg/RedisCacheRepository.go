@@ -1,8 +1,6 @@
 package pkg
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/gomodule/redigo/redis"
 )
 
@@ -14,17 +12,16 @@ func NewRedisRepository(conn redis.Conn) *ConfigMapRedisRepository {
 	return &ConfigMapRedisRepository{conn: conn}
 }
 
-func (r *ConfigMapRedisRepository) Set(key string, value ConfigMap) {
-	bytes, err := json.Marshal(value)
-	if err != nil {
-		fmt.Println(err)
-	}
-	r.conn.Do("SET", key, bytes)
+func (r *ConfigMapRedisRepository) Set(key string, value []byte) {
+	//bytes, err := json.Marshal(value)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	r.conn.Do("SET", key, value)
 }
 
-func (r *ConfigMapRedisRepository) GetById(key string) (result ConfigMap) {
+func (r *ConfigMapRedisRepository) GetById(key string) []byte {
 	keys,_ := redis.Bytes(r.conn.Do("GET", key))
-	json.Unmarshal(keys, &result)
-	return result
+	return keys
 }
 
