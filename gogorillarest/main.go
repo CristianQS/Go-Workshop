@@ -28,10 +28,6 @@ func AddConfigMap() func(w http.ResponseWriter, r *http.Request) {
 		//vars := mux.Vars(r)
 		var configurationDto Dtos.ConfigurationDto
 		_ = json.NewDecoder(r.Body).Decode(&configurationDto)
-		//bytes, err := ioutil.ReadFile(configurationDto.Path)
-		//if err != nil {
-		//	log.Printf("yamlFile.Get err   #%v ", err)
-		//}
 		service := configmap.NewService(&yaml.V2Serializer{}, *repository)
 		service.AddConfigMap(configurationDto.Id, configurationDto.Value)
 		w.WriteHeader(http.StatusCreated)
@@ -43,8 +39,8 @@ func GetConfigMapById() func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		service := configmap.NewService(&yaml.V2Serializer{}, *repository)
 		configMap := service.GetConfigMapById(vars["id"])
+		w.Header().Set("Content-Type", "application/yaml")
 		w.Write(configMap)
-		//_ = json.NewEncoder(w).Encode(configMap)
 	}
 }
 
