@@ -1,0 +1,15 @@
+.git
+.gitignore
+Dockerfile
+LICENSE
+README.md
+docker-compose.yml
+target/
+logs/
+vendor/
+.project
+.classpath
+*.prefs
+*.iml
+.idea
+.travis.yml
