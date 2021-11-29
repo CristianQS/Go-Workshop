@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gomodule/redigo/redis"
+	"os"
 	"time"
 )
 
@@ -18,7 +19,7 @@ func NewRedisConnection(hostname string, port string) *RedisConnection {
 }
 
 func (r *RedisConnection) newPool() *redis.Pool {
-	addr := *flag.String(r.hostname, r.port, "")
+	addr := *flag.String("addr", r.hostname+":"+r.port, "")
 	return &redis.Pool{
 		MaxIdle:     3,
 		IdleTimeout: 240 * time.Second,
@@ -32,6 +33,7 @@ func (r *RedisConnection) GetRedisConnection() redis.Conn {
 	conn, err := pool.GetContext(context.Background())
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(-1)
 	}
 	return conn
 }

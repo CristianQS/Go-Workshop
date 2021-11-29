@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	redisConn = pkg.NewRedisConnection("local-redis",":6379")
+	redisConn  = pkg.NewRedisConnection("redis", "6379")
 	repository = pkg.NewRedisRepository(redisConn.GetRedisConnection())
 )
 
@@ -25,7 +25,6 @@ func main() {
 
 func AddConfigMap() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		//vars := mux.Vars(r)
 		var configurationDto Dtos.ConfigurationDto
 		_ = json.NewDecoder(r.Body).Decode(&configurationDto)
 		service := configmap.NewService(&yaml.V2Serializer{}, *repository)

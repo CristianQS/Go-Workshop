@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"fmt"
 	"github.com/gomodule/redigo/redis"
 )
 
@@ -17,7 +18,10 @@ func (r *ConfigMapRedisRepository) Set(key string, value []byte) {
 	//if err != nil {
 	//	fmt.Println(err)
 	//}
-	r.conn.Do("SET", key, value)
+	_, err := r.conn.Do("SET", key, value)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func (r *ConfigMapRedisRepository) GetById(key string) []byte {
