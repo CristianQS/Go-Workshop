@@ -9,10 +9,11 @@ import (
 	"gogorillarest/pkg/serializers/yaml"
 	"log"
 	"net/http"
+	"os"
 )
 
 var (
-	redisConn  = pkg.NewRedisConnection("redis", "6379")
+	redisConn  = pkg.NewRedisConnection(os.Getenv("REDIS_URL"), os.Getenv("REDIS_PORT"), os.Getenv("REDIS_PASSWORD"))
 	repository = pkg.NewRedisRepository(redisConn.GetRedisConnection())
 )
 
